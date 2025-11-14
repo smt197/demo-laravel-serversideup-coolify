@@ -59,6 +59,7 @@ jobs:
         if: success()
         continue-on-error: true
         run: |
+          set +e  # Don't exit on error
           echo "🚀 Triggering Coolify deployment via API..."
           echo "📦 New image pushed: ghcr.io/${{ github.repository }}:latest"
 
@@ -73,14 +74,19 @@ jobs:
           echo "📋 API Response:"
           echo "$response"
 
-          http_code=$(echo "$response" | grep "HTTP_CODE" | sed 's/.*HTTP_CODE://g' || echo "000")
+          # Extract HTTP code more reliably
+          http_code=$(echo "$response" | tail -n1 | grep -o '[0-9]\{3\}' | head -n1)
+          if [ -z "$http_code" ]; then
+            http_code="000"
+          fi
+
           echo ""
           echo "📊 HTTP Status Code: $http_code"
 
           if [ "$http_code" = "200" ] || [ "$http_code" = "201" ] || [ "$http_code" = "204" ]; then
             echo "✅ Deployment triggered successfully!"
           else
-            echo "⚠️  Unexpected status code: $http_code"
-            echo "ℹ️  Check Coolify dashboard for deployment status."
+            echo "⚠️  Received status code: $http_code"
+            echo "ℹ️  Check Coolify dashboard to verify deployment status."
           fi
         timeout-minutes: 2
