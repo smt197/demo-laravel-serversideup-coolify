@@ -82,4 +82,3 @@ jobs:
             echo "ℹ️  Check Coolify dashboard for deployment status."
           fi
         timeout-minutes: 2
-
