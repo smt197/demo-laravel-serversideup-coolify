@@ -55,26 +55,34 @@ jobs:
           platforms: linux/amd64
           provenance: false
 
-      - name: Notify Coolify via Webhook
+      - name: Trigger Coolify Deployment
         if: success()
+        continue-on-error: true
         run: |
           echo "🚀 Triggering Coolify deployment..."
+          echo "📦 New image pushed: ghcr.io/${{ github.repository }}:latest"
 
+          # Try webhook deployment
           response=$(curl -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
             -w "\nHTTP_CODE:%{http_code}" \
-            -s)
+            -s -L)
 
-          echo "📋 Response:"
+          echo ""
+          echo "📋 Webhook Response:"
           echo "$response"
 
-          http_code=$(echo "$response" | grep -oP "HTTP_CODE:\K\d+")
+          http_code=$(echo "$response" | grep -oP "HTTP_CODE:\K\d+" || echo "000")
+          echo ""
           echo "📊 HTTP Status Code: $http_code"
 
           if [ "$http_code" = "200" ] || [ "$http_code" = "201" ] || [ "$http_code" = "204" ]; then
             echo "✅ Deployment triggered successfully!"
+            exit 0
           else
-            echo "⚠️ Unexpected status code: $http_code"
-            echo "Note: Deployment may still be triggered. Check Coolify dashboard."
+            echo "⚠️  Webhook returned status code: $http_code"
+            echo "ℹ️  If you configured Coolify to auto-pull images, deployment will happen automatically."
+            echo "ℹ️  Otherwise, manually trigger deployment in Coolify dashboard."
+            exit 0
           fi
         timeout-minutes: 2
 
