@@ -71,7 +71,7 @@ jobs:
           echo "📋 API Response:"
           echo "$response"
 
-          http_code=$(echo "$response" | grep -oP "HTTP_CODE:\K\d+" || echo "000")
+          http_code=$(echo "$response" | grep "HTTP_CODE" | sed 's/.*HTTP_CODE://g' || echo "000")
           echo ""
           echo "📊 HTTP Status Code: $http_code"
 
