@@ -62,10 +62,12 @@ jobs:
           echo "🚀 Triggering Coolify deployment via API..."
           echo "📦 New image pushed: ghcr.io/${{ github.repository }}:latest"
 
-          response=$(curl -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+          response=$(curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
             -w "\nHTTP_CODE:%{http_code}" \
-            -s)
+            -s -L \
+            --max-time 30)
 
           echo ""
           echo "📋 API Response:"
