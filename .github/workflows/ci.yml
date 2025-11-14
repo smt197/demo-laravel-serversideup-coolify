@@ -59,16 +59,16 @@ jobs:
         if: success()
         continue-on-error: true
         run: |
-          echo "🚀 Triggering Coolify deployment via webhook..."
+          echo "🚀 Triggering Coolify deployment via API..."
           echo "📦 New image pushed: ghcr.io/${{ github.repository }}:latest"
 
           response=$(curl -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
             -w "\nHTTP_CODE:%{http_code}" \
-            -s -L \
-            --max-time 30)
+            -s)
 
           echo ""
-          echo "📋 Webhook Response:"
+          echo "📋 API Response:"
           echo "$response"
 
           http_code=$(echo "$response" | grep "HTTP_CODE" | sed 's/.*HTTP_CODE://g' || echo "000")
@@ -78,8 +78,7 @@ jobs:
           if [ "$http_code" = "200" ] || [ "$http_code" = "201" ] || [ "$http_code" = "204" ]; then
             echo "✅ Deployment triggered successfully!"
           else
-            echo "⚠️  Received status code: $http_code"
-            echo "ℹ️  If deployment starts in Coolify, this is normal."
+            echo "⚠️  Unexpected status code: $http_code"
             echo "ℹ️  Check Coolify dashboard for deployment status."
           fi
         timeout-minutes: 2
