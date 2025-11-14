@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/smt197/laravel-serversideup-coolify:latest
+    image: ghcr.io/smt197/demo-laravel-serversideup-coolify:latest
     environment:
       - AUTORUN_ENABLED=${AUTORUN_ENABLED}
       - AUTORUN_LARAVEL_OCTANE=${AUTORUN_LARAVEL_OCTANE}
