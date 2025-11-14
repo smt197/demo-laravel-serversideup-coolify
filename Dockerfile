@@ -30,6 +30,9 @@ COPY --chown=www-data:www-data . .
 
 COPY --chown=root:root --chmod=755 automations.sh /etc/entrypoint.d/60-laravel-automations.sh
 
+# Copy NGINX configuration for Octane
+COPY --chown=root:root nginx-octane.conf /etc/nginx/sites-available/default
+
 # Create all necessary directories with correct permissions
 RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs storage/app bootstrap/cache \
     && touch storage/logs/laravel.log \
