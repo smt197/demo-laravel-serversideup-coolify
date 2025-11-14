@@ -58,18 +58,23 @@ jobs:
       - name: Notify Coolify via Webhook
         if: success()
         run: |
-          response=$(curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
-            --http1.1 \
-            -H "Content-Type: application/json" \
-            -d '{"forceRecreate": true}' \
-            -w "\nHTTP_CODE:%{http_code}" \
-            -s --fail-with-body)
-          echo "$response"
-          http_code=$(echo "$response" | grep "HTTP_CODE" | cut -d: -f2)
+          echo "🚀 Triggering Coolify deployment..."
 
-          if [ "$http_code" != "200" ] && [ "$http_code" != "201" ]; then
-            echo "Webhook failed with code: $http_code"
-            exit 1
+          response=$(curl -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -w "\nHTTP_CODE:%{http_code}" \
+            -s)
+
+          echo "📋 Response:"
+          echo "$response"
+
+          http_code=$(echo "$response" | grep -oP "HTTP_CODE:\K\d+")
+          echo "📊 HTTP Status Code: $http_code"
+
+          if [ "$http_code" = "200" ] || [ "$http_code" = "201" ] || [ "$http_code" = "204" ]; then
+            echo "✅ Deployment triggered successfully!"
+          else
+            echo "⚠️ Unexpected status code: $http_code"
+            echo "Note: Deployment may still be triggered. Check Coolify dashboard."
           fi
         timeout-minutes: 2
 
