@@ -55,10 +55,10 @@ jobs:
           platforms: linux/amd64
           provenance: false
 
-      - name: Notify Dokploy via Webhook
+      - name: Notify Coolify via Webhook
         if: success()
         run: |
-          response=$(curl -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
+          response=$(curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
             --http1.1 \
             -H "Content-Type: application/json" \
             -d '{"forceRecreate": true}' \
